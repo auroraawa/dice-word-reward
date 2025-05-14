@@ -1,0 +1,101 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>熟词巩固掷骰系统</title>
+  <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+  <div id="root"></div>  <script type="text/babel">
+    const { useState } = React;
+
+    const rewardPools = {
+      relax: [
+        { text: "看一集动漫或视频 (20点)", cost: 20 },
+        { text: "吃个喜欢的小零食 (10点)", cost: 10 },
+        { text: "闭眼发呆 15 分钟 (10点)", cost: 10 },
+        { text: "听轻音乐静坐 10 分钟 (5点)", cost: 5 },
+        { text: "自由活动 30 分钟 (30点)", cost: 30 },
+      ],
+      reward: [
+        { text: "玩一局游戏 (30点)", cost: 30 },
+        { text: "下单小商品 (50点)", cost: 50 },
+        { text: "短视频10分钟 (10点)", cost: 10 },
+        { text: "收藏动漫设定图 (10点)", cost: 10 },
+        { text: "床上赖着看视频 15 分钟 (20点)", cost: 20 },
+      ],
+      motivate: [
+        { text: "解锁下一阶段地图 (40点)", cost: 40 },
+        { text: "听励志BGM (10点)", cost: 10 },
+        { text: "跳过20个复习任务 (25点)", cost: 25 },
+        { text: "下次掷骰 x2 (30点)", cost: 30 },
+        { text: "查看成长图表 (10点)", cost: 10 },
+      ],
+    };
+
+    function App() {
+      const [wordsReviewed, setWordsReviewed] = useState(0);
+      const [points, setPoints] = useState(0);
+      const [lastRoll, setLastRoll] = useState(null);
+      const [selectedPool, setSelectedPool] = useState(null);
+
+      const reviewWords = (num) => {
+        const newReviewed = wordsReviewed + num;
+        const rolls = Math.floor(newReviewed / 5);
+        let total = 0;
+        for (let i = 0; i < rolls; i++) {
+          total += Math.ceil(Math.random() * 6);
+        }
+        setWordsReviewed(newReviewed % 5);
+        setPoints((prev) => prev + total);
+        setLastRoll(total);
+      };
+
+      const chooseReward = (reward) => {
+        if (points >= reward.cost) {
+          setPoints(points - reward.cost);
+          alert(`你获得了奖励：${reward.text}`);
+        } else {
+          alert("点数不足");
+        }
+      };
+
+      return (
+        <div className="p-4 space-y-4 max-w-xl mx-auto">
+          <h1 className="text-2xl font-bold text-center">熟词巩固掷骰系统</h1>
+          <div className="bg-white shadow rounded p-4 space-y-2">
+            <p>已完成复习词数：{wordsReviewed}</p>
+            <p>当前点数：{points}</p>
+            {lastRoll !== null && <p>最近一次掷骰共获得点数：{lastRoll}</p>}
+            <button className="px-4 py-2 bg-blue-600 text-white rounded" onClick={() => reviewWords(5)}>
+              复习5个词 + 掷骰
+            </button>
+          </div>
+
+          <div className="bg-white shadow rounded p-4 space-y-3">
+            <h2 className="text-lg font-semibold">选择奖励池：</h2>
+            <div className="flex gap-2">
+              <button className="px-3 py-1 border rounded" onClick={() => setSelectedPool("relax")}>放松池</button>
+              <button className="px-3 py-1 border rounded" onClick={() => setSelectedPool("reward")}>奖励池</button>
+              <button className="px-3 py-1 border rounded" onClick={() => setSelectedPool("motivate")}>激励池</button>
+            </div>
+            {selectedPool && (
+              <div className="space-y-2">
+                {rewardPools[selectedPool].map((r, i) => (
+                  <button key={i} className="w-full text-left border rounded px-3 py-2 flex justify-between items-center" onClick={() => chooseReward(r)}>
+                    {r.text} <span className="text-gray-500">({r.cost}点)</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script></body>
+</html>
